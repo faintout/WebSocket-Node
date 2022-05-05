@@ -1,0 +1,63 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    client:
+    <br />
+    <input type="text" id="msg">
+    <button onclick="sendMsg()">发送</button>
+    <br /><br />
+    serverMsg记录 : <button onclick="serverMsg.innerHTML =''">清空server记录</button>
+    <ul id="serverMsg">
+    </ul>
+    <script>
+        //获取时间
+        function getTimes() {
+            let dt = new Date()
+            let times = (dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()).replace(/([\-\: ])(\d{1})(?!\d)/g, '$10$2');
+            return times
+        }
+        var ws = new WebSocket(`ws://localhost:8080`);
+        //连接成功后的回调函数
+        ws.onopen = () => {
+            //发送消息给服务器
+            // ws.send("hello server");
+        }
+        //监听服务器发来的消息
+        ws.onmessage = res => {
+            console.log(res.data)
+            //添加到
+            const tempSendDom = `<li class='font-blue'>${getTimes()} : ${res.data}</li>`
+            serverMsg.innerHTML += tempSendDom
+        }
+        //关闭连接的回调
+        ws.onclose = function() {
+            console.log("server has closed")
+        }
+
+        const sendMsg = () => {
+            ws.send(msg.value);
+            const tempSendDom = `<li class='font-green'>${getTimes()} : ${msg.value}</li>`
+            serverMsg.innerHTML += tempSendDom
+        }
+    </script>
+    <style>
+        .font-blue {
+            color: blue;
+        }
+
+        .font-green {
+            color: green;
+        }
+
+        #serverMsg {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</body>
+
+</html>
